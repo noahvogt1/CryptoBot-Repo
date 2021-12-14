@@ -15,30 +15,30 @@ var4 = {1,2,3,4,5}
 i=1
 while i==1:
     data = yf.download(tickers='BTC-USD', period='1d', interval='1m')
-    timeN = data[-1]
 
     fig = go.Figure()
 
-    mid = data['Middle Band'] = data['Close'].rolling(window=21).mean()
-    upper = data['Upper Band'] = data['Middle Band'] + 1.96*data['Close'].rolling(window=21).std()
-    lower = data['Lower Band'] = data['Middle Band'] - 1.96*data['Close'].rolling(window=21).std()
-    timeNU = upper[-1]
-    timeNL = lower[-1]
-
-    if timeN < timeNL:
-        testvar = testvar + timeN
-    if timeN > timeNU:
-        if shares > 0:
-            testvar = testvar - timeN
+    data['Middle Band'] = data['Close'].rolling(window=21).mean()
+    data['Upper Band'] = data['Middle Band'] + 1.96*data['Close'].rolling(window=21).std()
+    data['Lower Band'] = data['Middle Band'] - 1.96*data['Close'].rolling(window=21).std()
+    # timeNU = data["Upper Band"].iloc[-1:].to_dict()
+    # timeNL = data["Lower Band"].iloc[-1:].to_dict()
+    
+    timeN = data.iloc[-1:]
+    for date, item in timeN.iterrows():
+        if item["Close"] < item["Lower Band"]:
+            print("inside")
+        elif item["Close"] > item["Upper Band"]:
+            print("above")
         else:
-            0
+            print("Inside")
 
     print(testvar)
 
 
-    fig.add_trace(go.Scatter(x=data.index, y= mid,line=dict(color='blue', width=.7), name = 'Middle Band'))
-    fig.add_trace(go.Scatter(x=data.index, y= upper,line=dict(color='red', width=.7), name = 'Upper Band (Sell)'))
-    fig.add_trace(go.Scatter(x=data.index, y= lower,line=dict(color='green', width=.7), name = 'Lower Band (Buy)'))
+    fig.add_trace(go.Scatter(x=data.index, y= data["Middle Band"],line=dict(color='blue', width=.7), name = 'Middle Band'))
+    fig.add_trace(go.Scatter(x=data.index, y= data["Upper Band"],line=dict(color='red', width=.7), name = 'Upper Band (Sell)'))
+    fig.add_trace(go.Scatter(x=data.index, y= data["Lower Band"],line=dict(color='green', width=.7), name = 'Lower Band (Buy)'))
     fig.add_trace(go.Scatter(x=data.index, y= data['Close'],line=dict(color='black', width=.7), name = 'Price'))
 
    # Add titles
